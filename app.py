@@ -115,30 +115,28 @@ def webhook():
     """Handle incoming messages from Telex channels"""
     try:
         data = request.json
-        message = data.get("message", "")
+        original_message = data.get("message", "")
 
         # Extract URLs from the message
-        urls = extract_urls(message)
+        urls = extract_urls(original_message)
 
         if not urls:
             return jsonify({
                 "status": "success",
-                "message": "No links detected in the message"
+                "message": original_message
             })
 
-        # Generate preview text for all URLs
-        preview_texts = []
-        for url in urls:
-            metadata = fetch_metadata(url)
-            preview_text = f"Title: {metadata['title']}\nDescription: {metadata['description']}\nURL: {metadata['url']}"
-            preview_texts.append(preview_text)
+        # Generate preview for the first URL only
+        metadata = fetch_metadata(urls[0])
 
-        # Join all previews with newlines between them
-        final_message = "\n\n".join(preview_texts)
+        preview_text = f"{original_message}\n"
+        preview_text += f"{metadata['title']}\n"
+        preview_text += f"{metadata['description']}\n"
+        preview_text += f"{metadata['image']}"
 
         return jsonify({
             "status": "success",
-            "message": final_message
+            "message": preview_text
         })
 
     except Exception as e:
