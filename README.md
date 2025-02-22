@@ -100,5 +100,12 @@ GET /integration.json
 ![Telex Link Preview Example](images/screenshot.png)
 
 ---
+
+## Tests
+The tests are written in `test_app.py` file. Run the test file using the command `python test_app.py` and all tests should pass.
+![Telex Link Preview Example](images/test.png)
+
+---
+
 🚀 **Live Demo:** [Deployed URL](https://telexpreview.onrender.com/webhook)
 
