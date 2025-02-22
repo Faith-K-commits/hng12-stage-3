@@ -1,8 +1,8 @@
 from flask import Flask, request, jsonify
-import requests, json
+import requests
 from bs4 import BeautifulSoup
 import re
-
+from datetime import datetime
 from flask_cors import CORS
 
 app = Flask(__name__)
@@ -15,13 +15,13 @@ url_pattern = re.compile(r"https?://[\w\.-]+\.[a-z]{2,6}[\w\./?&=-]*")
 integration_data = {
     "data": {
         "date": {
-            "created_at": "2025-02-22",
-            "updated_at": "2025-02-22"
+            "created_at": datetime.now().strftime("%Y-%m-%d"),
+            "updated_at": datetime.now().strftime("%Y-%m-%d")
         },
         "descriptions": {
             "app_name": "Link Preview Generator",
             "app_description": "Extracts URLs from messages and generates previews with metadata.",
-            "app_logo": "https://www.google.com/url?sa=i&url=https%3A%2F%2Ficonscout.com%2Ffree-icon%2Flink-preview-2653354&psig=AOvVaw2SsFncePz3eCGroM2Meb8g&ust=1740311277460000&source=images&cd=vfe&opi=89978449&ved=0CBEQjRxqFwoTCNiRle6a14sDFQAAAAAdAAAAABAE",
+            "app_logo": "https://www.google.com/url?sa=i&url=https%3A%2F%2Ficonscout.com%2Ffree-icon%2Flink-preview-2653354",
             "app_url": "https://telexpreview.onrender.com",
             "background_color": "#ffffff"
         },
@@ -32,65 +32,164 @@ integration_data = {
             "Automatically detects URLs in messages",
             "Fetches and displays metadata (title, description, and thumbnail)"
         ],
-        "author": "Faith",
+        "author": "Faith Kariuki",
         "settings": [
             {
                 "label": "Enable Link Previews",
-                "type": "boolean",
+                "type": "text",
                 "required": True,
-                "default": True
+                "default": "Yes"
             }
         ],
-        "target_url": "https://telexpreview.onrender.com/preview",
-        "tick_url": "nil"
+        "target_url": "https://telexpreview.onrender.com/webhook",
+        "endpoints": [
+            {
+                "path": "/webhook",
+                "method": "POST",
+                "description": "Process messages and generate link previews"
+            },
+            {
+                "path": "/preview",
+                "method": "POST",
+                "description": "Test endpoint for generating previews"
+            },
+            {
+                "path": "/test",
+                "method": "POST",
+                "description": "Basic test endpoint"
+            }
+        ]
     }
 }
 
+
 def extract_urls(text):
+    """Extract URLs from text content"""
     return url_pattern.findall(text)
 
 
 def fetch_metadata(url):
     """Fetch metadata from the given URL using Open Graph tags."""
     try:
-        headers = {"User-Agent": "Mozilla/5.0"}
+        headers = {
+            "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36"
+        }
         response = requests.get(url, headers=headers, timeout=5)
         response.raise_for_status()
 
         soup = BeautifulSoup(response.text, "html.parser")
 
-        title = soup.find("meta", property="og:title") or soup.find("title")
-        description = soup.find("meta", property="og:description")
-        image = soup.find("meta", property="og:image")
+        # Try Open Graph tags first, then fall back to regular meta tags
+        title = (
+                soup.find("meta", property="og:title") or
+                soup.find("title") or
+                soup.find("meta", {"name": "title"})
+        )
 
-        return {
-            "title": title["content"] if title and title.has_attr("content") else "No Title",
+        description = (
+                soup.find("meta", property="og:description") or
+                soup.find("meta", {"name": "description"})
+        )
+
+        image = (
+                soup.find("meta", property="og:image") or
+                soup.find("meta", {"name": "image"})
+        )
+
+        metadata = {
+            "title": title.get("content", title.text) if title else "No Title",
             "description": description["content"] if description and description.has_attr(
                 "content") else "No Description",
             "image": image["content"] if image and image.has_attr("content") else None,
             "url": url
         }
+
+        return metadata
+
     except requests.exceptions.RequestException as e:
         return {"error": str(e), "url": url}
 
 
+@app.route("/webhook", methods=["POST"])
+def webhook():
+    """Handle incoming messages from Telex channels"""
+    try:
+        data = request.json
+        message = data.get("message", "")
+
+        # Extract URLs from the message
+        urls = extract_urls(message)
+
+        if not urls:
+            return jsonify({
+                "status": "success",
+                "message": "No links detected in the message"
+            })
+
+        # Generate preview text for all URLs
+        preview_texts = []
+        for url in urls:
+            metadata = fetch_metadata(url)
+            preview_text = f"Title: {metadata['title']}\nDescription: {metadata['description']}\nURL: {metadata['url']}"
+            preview_texts.append(preview_text)
+
+        # Join all previews with newlines between them
+        final_message = "\n\n".join(preview_texts)
+
+        return jsonify({
+            "status": "success",
+            "message": final_message
+        })
+
+    except Exception as e:
+        return jsonify({
+            "status": "error",
+            "message": f"Error processing request: {str(e)}"
+        }), 500
+
+
 @app.route("/preview", methods=["POST"])
 def preview():
+    """Test endpoint for preview generation"""
+    try:
+        data = request.json
+        message = data.get("message", "")
+        urls = extract_urls(message)
+
+        if not urls:
+            return jsonify({
+                "message": message,
+                "previews": []
+            })
+
+        previews = [fetch_metadata(url) for url in urls]
+
+        return jsonify({
+            "message": message,
+            "previews": previews
+        })
+
+    except Exception as e:
+        return jsonify({
+            "error": str(e)
+        }), 500
+
+
+@app.route("/test", methods=["POST"])
+def test():
+    """Basic test endpoint"""
     data = request.json
-    message = data.get("message", "")
-    urls = extract_urls(message)
+    return jsonify({
+        "status": "success",
+        "message": f"{data}"
+    })
 
-    if not urls:
-        return jsonify({"message": message, "previews": []})
-
-    previews = [fetch_metadata(url) for url in urls]
-
-    return jsonify({"message": message, "previews": previews})
 
 @app.route("/integration.json", methods=["GET"])
 def get_integration():
     """Returns the integration JSON"""
     return jsonify(integration_data)
+
 
 if __name__ == "__main__":
     app.run(port=5000)

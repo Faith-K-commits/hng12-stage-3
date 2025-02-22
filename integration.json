@@ -1,33 +1,40 @@
 {
-  "data": {
-    "date": {
-      "created_at": "2025-02-22",
-      "updated_at": "2025-02-22"
-    },
-    "descriptions": {
-      "app_name": "Link Preview Generator",
-      "app_description": "Extracts URLs from messages and generates previews with metadata.",
-      "app_logo": "https://www.google.com/url?sa=i&url=https%3A%2F%2Ficonscout.com%2Ffree-icon%2Flink-preview-2653354&psig=AOvVaw2SsFncePz3eCGroM2Meb8g&ust=1740311277460000&source=images&cd=vfe&opi=89978449&ved=0CBEQjRxqFwoTCNiRle6a14sDFQAAAAAdAAAAABAE",
-      "app_url": "https://telexpreview.onrender.com",
-      "background_color": "#ffffff"
-    },
-    "is_active": true,
-    "integration_type": "modifier",
-    "integration_category": "Communication & Collaboration",
-    "key_features": [
-      "Automatically detects URLs in messages",
-      "Fetches and displays metadata (title, description, and thumbnail)"
-    ],
-    "author": "Faith",
-    "settings": [
-      {
-        "label": "Enable Link Previews",
-        "type": "boolean",
-        "required": true,
-        "default": true
-      }
-    ],
-    "target_url": "https://telexpreview.onrender.com/preview",
-    "tick_url": "nil"
-  }
+    "data": {
+        "date": {
+            "created_at": "2025-02-22",
+            "updated_at": "2025-02-22"
+        },
+        "descriptions": {
+            "app_name": "Link Preview Generator",
+            "app_description": "Extracts URLs from messages and generates previews with metadata.",
+            "app_logo": "https://www.google.com/url?sa=i&url=https%3A%2F%2Ficonscout.com%2Ffree-icon%2Flink-preview-2653354",
+            "app_url": "https://telexpreview.onrender.com",
+            "background_color": "#ffffff"
+        },
+        "is_active": true,
+        "integration_type": "modifier",
+        "integration_category": "Communication & Collaboration",
+        "key_features": [
+            "Automatically detects URLs in messages",
+            "Fetches and displays metadata (title, description, and thumbnail)"
+        ],
+        "author": "Faith Kariuki",
+        "settings": [
+            {
+                "label": "Enable Link Previews",
+                "type": "text",
+                "required": true,
+                "default": true
+            }
+        ],
+        "target_url": "https://telexpreview.onrender.com/webhook",
+        "tick_url": "nil",
+        "endpoints": [
+            {
+                "path": "/webhook",
+                "method": "POST",
+                "description": "Process messages and generate link previews"
+            }
+        ]
+    }
 }
