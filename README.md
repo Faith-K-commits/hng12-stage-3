@@ -6,7 +6,7 @@ The **Telex Link Preview Generator** is a **Modifier Integration** for the [Tele
 ## Features
 - Detects URLs in messages
 - Fetches metadata from web pages (title, description, image)
-- Displays a rich link preview before posting
+- Displays a rich link preview when you post a URL
 - Enhances user experience by providing instant context for shared links
 
 ## Integration Type
@@ -34,13 +34,13 @@ The **Telex Link Preview Generator** is a **Modifier Integration** for the [Tele
    ```
 4. Test with Postman or cURL:
    ```bash
-   curl -X POST "http://localhost:5000/preview" -H "Content-Type: application/json" -d '{"message": "https://example.com"}'
+   curl -X POST "http://localhost:5000/webhook" -H "Content-Type: application/json" -d '{"message": "https://example.com"}'
    ```
 
 ## API Endpoints
 ### **1. Preview Messages**
 ```http
-POST /preview
+POST /webhook
 ```
 **Request Body:**
 ```json
@@ -90,15 +90,15 @@ GET /integration.json
         "type": "boolean"
       }
     ],
-    "target_url": "https://telexpreview.onrender.com/preview",
+    "target_url": "https://telexpreview.onrender.com/webhook",
     "tick_url": "nil"
   }
 }
 ```
 
 ## Screenshots
-![Telex Link Preview Example](https://your-image-url.com/screenshot.png)
+![Telex Link Preview Example](images/screenshot.png)
 
 ---
-🚀 **Live Demo:** [Deployed URL](https://telexpreview.onrender.com/preview)
+🚀 **Live Demo:** [Deployed URL](https://telexpreview.onrender.com/webhook)
 
