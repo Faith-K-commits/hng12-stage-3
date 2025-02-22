@@ -34,7 +34,7 @@ class TestFlaskIntegration(unittest.TestCase):
 
         self.assertEqual(response.status_code, 200)
         self.assertEqual(data["message"], "Hello, world!")
-        self.assertEqual(data["previews"], [])
+        self.assertFalse(data["hasPreview"])
 
     def test_preview_with_url(self):
         """Test /preview endpoint with a valid URL"""
@@ -43,7 +43,7 @@ class TestFlaskIntegration(unittest.TestCase):
 
         self.assertEqual(response.status_code, 200)
         self.assertEqual(data["message"], "Check this: https://example.com")
-        self.assertGreater(len(data["previews"]), 0)  # At least one preview
+        self.assertTrue(data["hasPreview"])  # Check if preview is present
 
     def test_integration_json(self):
         """Test /integration.json endpoint"""

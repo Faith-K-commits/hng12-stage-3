@@ -163,7 +163,7 @@ def webhook():
 
 @app.route("/preview", methods=["POST"])
 def preview():
-    """Test endpoint for preview generation"""
+    """Real-time preview generation endpoint"""
     try:
         data = request.json
         message = data.get("message", "")
@@ -171,22 +171,44 @@ def preview():
 
         if not urls:
             return jsonify({
+                "status": "success",
                 "message": message,
-                "previews": []
+                "hasPreview": False
             })
 
-        previews = [fetch_metadata(url) for url in urls]
+        # Generate preview for the first URL only
+        metadata = fetch_metadata(urls[0])
+
+        preview_html = '<div style="border: 1px solid #e0e0e0; border-radius: 8px; padding: 15px; margin: 10px 0; max-width: 600px;">'
+
+        # Title with link
+        preview_html += f'<a href="{html.escape(metadata["url"])}" target="_blank" style="text-decoration: none; color: #1a0dab;">'
+        preview_html += f'<h3 style="margin: 0 0 10px 0;">{html.escape(metadata["title"])}</h3></a>'
+
+        # Description
+        preview_html += f'<p style="color: #4d5156; margin: 0 0 15px 0;">{html.escape(metadata["description"])}</p>'
+
+        # Image (if available) - now wrapped in a link and with smaller dimensions
+        if metadata.get('image'):
+            preview_html += f'<a href="{html.escape(metadata["url"])}" target="_blank" style="display: block; width: 200px; height: 150px; overflow: hidden; border-radius: 4px;">'
+            preview_html += f'<img src="{html.escape(metadata["image"])}" alt="Preview" style="width: 100%; height: 100%; object-fit: cover;">'
+            preview_html += '</a>'
+
+        preview_html += '</div>'
 
         return jsonify({
+            "status": "success",
             "message": message,
-            "previews": previews
+            "preview": preview_html,
+            "hasPreview": True,
+            "metadata": metadata
         })
 
     except Exception as e:
         return jsonify({
-            "error": str(e)
+            "status": "error",
+            "message": str(e)
         }), 500
-
 
 @app.route("/test", methods=["POST"])
 def test():
