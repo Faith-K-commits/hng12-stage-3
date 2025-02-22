@@ -129,12 +129,10 @@ def webhook():
         # Generate preview for the first URL only to avoid duplicates
         metadata = fetch_metadata(urls[0])
 
-        # Create HTML message with embedded image and styled preview
-        preview_html = f'<div style="font-family: Arial, sans-serif;">'
-        # Original message
-        preview_html += f'<p>{html.escape(original_message)}</p>'
+        # Combine original message with preview card
+        preview_html = f'{original_message}\n\n'  # Keep original message as-is
 
-        # Preview card
+        # Add preview card below
         preview_html += '<div style="border: 1px solid #e0e0e0; border-radius: 8px; padding: 15px; margin: 10px 0; max-width: 600px;">'
 
         # Title with link
@@ -148,7 +146,7 @@ def webhook():
         if metadata.get('image'):
             preview_html += f'<img src="{html.escape(metadata["image"])}" alt="Preview" style="max-width: 100%; height: auto; border-radius: 4px;">'
 
-        preview_html += '</div></div>'
+        preview_html += '</div>'
 
         return jsonify({
             "status": "success",
