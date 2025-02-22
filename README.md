@@ -57,7 +57,7 @@ POST /preview
 
 ### **1. Integration Endpoint**
 ```http
-GET /integration
+GET /integration.json
 ```
 **Response:**
 ```json
