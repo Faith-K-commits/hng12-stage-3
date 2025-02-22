@@ -55,6 +55,47 @@ POST /preview
 }
 ```
 
+### **1. Integration Endpoint**
+```http
+GET /integration
+```
+**Response:**
+```json
+{
+  "data": {
+    "author": "Faith Kariuki",
+    "date": {
+      "created_at": "2025-02-22",
+      "updated_at": "2025-02-22"
+    },
+    "descriptions": {
+      "app_description": "Extracts URLs from messages and generates previews with metadata.",
+      "app_logo": "https://www.google.com/url?sa=i&url=https%3A%2F%2Ficonscout.com%2Ffree-icon%2Flink-preview-2653354&psig=AOvVaw2SsFncePz3eCGroM2Meb8g&ust=1740311277460000&source=images&cd=vfe&opi=89978449&ved=0CBEQjRxqFwoTCNiRle6a14sDFQAAAAAdAAAAABAE",
+      "app_name": "Link Preview Generator",
+      "app_url": "https://telexpreview.onrender.com",
+      "background_color": "#ffffff"
+    },
+    "integration_category": "Communication & Collaboration",
+    "integration_type": "modifier",
+    "is_active": true,
+    "key_features": [
+      "Automatically detects URLs in messages",
+      "Fetches and displays metadata (title, description, and thumbnail)"
+    ],
+    "settings": [
+      {
+        "default": true,
+        "label": "Enable Link Previews",
+        "required": true,
+        "type": "boolean"
+      }
+    ],
+    "target_url": "https://telexpreview.onrender.com/preview",
+    "tick_url": "nil"
+  }
+}
+```
+
 ## Screenshots
 ![Telex Link Preview Example](https://your-image-url.com/screenshot.png)
 
