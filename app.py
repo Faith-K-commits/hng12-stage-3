@@ -129,14 +129,26 @@ def webhook():
         # Generate preview for the first URL only
         metadata = fetch_metadata(urls[0])
 
-        preview_text = f"{original_message}\n"
-        preview_text += f"{metadata['title']}\n"
-        preview_text += f"{metadata['description']}\n"
-        preview_text += f"{metadata['image']}"
+        # Markdown approach (if Telex supports Markdown)
+        preview_text = f"**{metadata['title']}**\n"
+        preview_text += f"{metadata['description']}\n\n"
+        preview_text += f"![Preview Image]({metadata['image']})\n\n"
+        preview_text += f"[Visit Website]({metadata['url']})"
+
+        # HTML approach (if Telex supports HTML)
+        preview_html = f"""
+        <strong>{metadata['title']}</strong><br>
+        {metadata['description']}<br><br>
+        <img src="{metadata['image']}" alt="Preview Image" style="max-width: 100%;"><br>
+        <a href="{metadata['url']}">Visit Website</a>
+        """
+
+        # Choose format based on what Telex supports
+        response_message = preview_text  # Change to `preview_html` if Telex supports HTML
 
         return jsonify({
             "status": "success",
-            "message": preview_text
+            "message": response_message
         })
 
     except Exception as e:
