@@ -1,5 +1,5 @@
 from flask import Flask, request, jsonify
-import requests
+import requests, json
 from bs4 import BeautifulSoup
 import re
 
@@ -53,6 +53,11 @@ def preview():
 
     return jsonify({"message": message, "previews": previews})
 
+@app.route("/integration", methods=["GET"])
+def get_integration_data():
+    with open("integration.json", "r") as file:
+        data = json.load(file)
+    return jsonify(data)
 
 if __name__ == "__main__":
-    app.run(port=5000)
+    app.run(port=5000, debug=True)
