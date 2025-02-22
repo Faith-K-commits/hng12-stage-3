@@ -4,6 +4,7 @@ from bs4 import BeautifulSoup
 import re
 from datetime import datetime
 from flask_cors import CORS
+import html
 
 app = Flask(__name__)
 CORS(app)
@@ -36,9 +37,9 @@ integration_data = {
         "settings": [
             {
                 "label": "Enable Link Previews",
-                "type": "text",
+                "type": "boolean",
                 "required": True,
-                "default": "Yes"
+                "default": True
             }
         ],
         "target_url": "https://telexpreview.onrender.com/webhook",
@@ -79,7 +80,6 @@ def fetch_metadata(url):
 
         soup = BeautifulSoup(response.text, "html.parser")
 
-        # Try Open Graph tags first, then fall back to regular meta tags
         title = (
                 soup.find("meta", property="og:title") or
                 soup.find("title") or
@@ -126,29 +126,34 @@ def webhook():
                 "message": original_message
             })
 
-        # Generate preview for the first URL only
+        # Generate preview for the first URL only to avoid duplicates
         metadata = fetch_metadata(urls[0])
 
-        # Markdown approach (if Telex supports Markdown)
-        preview_text = f"**{metadata['title']}**\n"
-        preview_text += f"{metadata['description']}\n\n"
-        preview_text += f"![Preview Image]({metadata['image']})\n\n"
-        preview_text += f"[Visit Website]({metadata['url']})"
+        # Create HTML message with embedded image and styled preview
+        preview_html = f'<div style="font-family: Arial, sans-serif;">'
+        # Original message
+        preview_html += f'<p>{html.escape(original_message)}</p>'
 
-        # HTML approach (if Telex supports HTML)
-        preview_html = f"""
-        <strong>{metadata['title']}</strong><br>
-        {metadata['description']}<br><br>
-        <img src="{metadata['image']}" alt="Preview Image" style="max-width: 100%;"><br>
-        <a href="{metadata['url']}">Visit Website</a>
-        """
+        # Preview card
+        preview_html += '<div style="border: 1px solid #e0e0e0; border-radius: 8px; padding: 15px; margin: 10px 0; max-width: 600px;">'
 
-        # Choose format based on what Telex supports
-        response_message = preview_text  # Change to `preview_html` if Telex supports HTML
+        # Title with link
+        preview_html += f'<a href="{html.escape(metadata["url"])}" style="text-decoration: none; color: #1a0dab;">'
+        preview_html += f'<h3 style="margin: 0 0 10px 0;">{html.escape(metadata["title"])}</h3></a>'
+
+        # Description
+        preview_html += f'<p style="color: #4d5156; margin: 0 0 15px 0;">{html.escape(metadata["description"])}</p>'
+
+        # Image (if available)
+        if metadata.get('image'):
+            preview_html += f'<img src="{html.escape(metadata["image"])}" alt="Preview" style="max-width: 100%; height: auto; border-radius: 4px;">'
+
+        preview_html += '</div></div>'
 
         return jsonify({
             "status": "success",
-            "message": response_message
+            "message": preview_html,
+            "content_type": "text/html"
         })
 
     except Exception as e:
