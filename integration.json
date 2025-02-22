@@ -1,0 +1,15 @@
+{
+    "name": "Link Preview Generator",
+    "type": "modifier",
+    "description": "Extracts URLs from messages and generates previews with metadata.",
+    "endpoints": {
+        "preview": {
+            "method": "POST",
+            "url": "http://localhost:5000/preview",
+            "description": "Processes a message and returns link previews."
+        }
+    },
+    "settings": {
+        "enabled": true
+    }
+}
