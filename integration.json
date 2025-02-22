@@ -5,7 +5,7 @@
     "endpoints": {
         "preview": {
             "method": "POST",
-            "url": "http://localhost:5000/preview",
+            "url": "https://telexpreview.onrender.com/preview",
             "description": "Processes a message and returns link previews."
         }
     },
