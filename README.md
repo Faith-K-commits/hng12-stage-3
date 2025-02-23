@@ -16,7 +16,7 @@ The **Telex Link Preview Generator** is a **Modifier Integration** for the [Tele
 1. A user sends a message containing a URL in a Telex channel.
 2. The integration detects the URL.
 3. It fetches metadata (title, description, and thumbnail) using web scraping or Open Graph tags.
-4. The message is modified to include a preview before posting.
+4. The message is modified to include a preview when posted.
 
 ## Setup & Deployment
 1. Clone the repository:
